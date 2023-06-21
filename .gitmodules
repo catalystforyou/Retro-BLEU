@@ -1,0 +1,9 @@
+[submodule "PaRoutes"]
+	path = PaRoutes
+	url = https://github.com/MolecularAI/PaRoutes.git
+[submodule "aizynthfinder"]
+	path = aizynthfinder
+	url = https://github.com/MolecularAI/aizynthfinder.git
+[submodule "aizynthtrain"]
+	path = aizynthtrain
+	url = https://github.com/MolecularAI/aizynthtrain.git
