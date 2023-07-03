@@ -50,13 +50,13 @@ def extract_mol_set(route, instock=False):
     return mol_set
 
 def extract_bigram(rxn_nodes):
-    digram_rxns = []
+    bigram_rxns = []
     for rxn_node in rxn_nodes:
         child_rxns = [child['children'][0] for child in rxn_node['children'] if child.get('children') is not None]
         for child_rxn in child_rxns:
-            if not (rxn_node['metadata']['smiles'], child_rxn['metadata']['smiles']) in digram_rxns:
-                digram_rxns.append((rxn_node['metadata']['smiles'], child_rxn['metadata']['smiles']))
-    return digram_rxns
+            if not (rxn_node['metadata']['smiles'], child_rxn['metadata']['smiles']) in bigram_rxns:
+                bigram_rxns.append((rxn_node['metadata']['smiles'], child_rxn['metadata']['smiles']))
+    return bigram_rxns
 
 def extract_trigram(rxn_nodes):
     trigram_rxns = []
@@ -181,7 +181,8 @@ def evaluate_routes(test_routes, template_dict, vocab_ngram_templates, vocab_ngr
                 bleu_template_score[3].append(sum([penta in vocab_ngram_templates[3] for penta in test_ngram_templates[3]]) / len(test_ngram_templates[3]))
     return bleu_score, bleu_template_score
 
-def get_new_ngram(route, rxnmapper, template_radius=1):
+def get_new_ngram(route, template_radius=1):
+    rxnmapper = RXNMapper()
     all_ngram_rxns = [[] for _ in range(4)]
     precursors_dict = {rxn.split('>>')[0]:rxn for rxn in route}
     forward_rxns = ['>>'.join([rxn.split('>')[-1], rxn.split('>')[0]]) for rxn in route]
@@ -279,7 +280,13 @@ def route_score(
     )
     return reaction_cost + child_sum
 
-def route_score_bleu(routes, vocab_negative, vocab_positive, golden_template):
+def heuristic_score(length):
+    if length <= 3:
+        return 1
+    else:
+        return 3 / length
+
+def route_score_bleu(routes, vocab_negative, vocab_positive, golden_template, heuristic=True):
     min_length = min([len(extract_rxns(r)) for r in routes])
     scores = []
     for route in routes:
@@ -290,7 +297,7 @@ def route_score_bleu(routes, vocab_negative, vocab_positive, golden_template):
         try:
             bigrams = extract_generated_bigram(rxn_nodes)[1]
         except:
-            bigrams_orig = extract_bigram(rxn_nodes)[0]
+            bigrams_orig = extract_bigram(rxn_nodes)
             bigrams = [tuple([golden_template[rxn] for rxn in curr_rxn_set]) for curr_rxn_set in bigrams_orig]
         if len(bigrams) == 0:
             bigram_ratio = 0
@@ -302,10 +309,13 @@ def route_score_bleu(routes, vocab_negative, vocab_positive, golden_template):
             bigram_ratio_neg = 0
         else:
             bigram_ratio_neg = sum([b in vocab_negative for b in bigrams]) / len(bigrams)
-        scores.append(- 1 * np.exp(bigram_ratio) - 1 * np.exp(min_length / len(rxn_nodes)) + 1 * np.exp(bigram_ratio_neg) - 1e-5 * bigram_freq)
+        if heuristic:
+            scores.append(- 1 * np.exp(bigram_ratio) - 1 * np.exp(heuristic_score(len(rxn_nodes))) + 1 * np.exp(bigram_ratio_neg))
+        else:
+            scores.append(- 1 * np.exp(bigram_ratio) - 1 * np.exp(min_length / len(rxn_nodes)) + 1 * np.exp(bigram_ratio_neg))
     return scores
 
-def retrostar_route_bleu(routes, vocab_negative, vocab_positive, golden_template):
+def retrostar_route_bleu(routes, vocab_negative, vocab_positive, golden_template, heuristic=True):
     min_length = min([len(route) for route in routes])
     scores = []
     for route in routes:
@@ -316,7 +326,10 @@ def retrostar_route_bleu(routes, vocab_negative, vocab_positive, golden_template
         else:
             bigram_ratio = sum([b in vocab_positive for b in ngram_templates[0]]) / len(ngram_templates[0])
             bigram_ratio_neg = sum([b in vocab_negative for b in ngram_templates[0]]) / len(ngram_templates[0])
-        scores.append(- 1 * np.exp(bigram_ratio) - 1 * np.exp(min_length / len(route)) + 1 * np.exp(bigram_ratio_neg))
+        if heuristic:
+            scores.append(- 1 * np.exp(bigram_ratio) - 1 * np.exp(heuristic_score(len(route))) + 1 * np.exp(bigram_ratio_neg))
+        else:
+            scores.append(- 1 * np.exp(bigram_ratio) - 1 * np.exp(min_length / len(route)) + 1 * np.exp(bigram_ratio_neg))
     return scores
 
 def route_score_probability(route):
@@ -328,7 +341,7 @@ def route_score_probability(route):
         cumul_prob *= rxn_node['metadata']['policy_probability']
     return cumul_prob
 
-def route_score_probability_golden(route, golden_dict):
+def route_score_probability_golden(route, golden_dict, searchable=True):
     mols = extract_mols(route)
     mols = [mol for mol in mols if not mol['in_stock']]
     cumul_prob = 1
@@ -340,7 +353,7 @@ def route_score_probability_golden(route, golden_dict):
             cumul_prob *= single_step_result[candidate_reactants.index(golden_set)][0].metadata['policy_probability']
         else:
             if len(single_step_result):
-                cumul_prob *= 1e-10
+                cumul_prob *= 0 if searchable else 1e-10
             else:
-                cumul_prob *= 1e-10
+                cumul_prob *= 0 if searchable else 1e-10
     return cumul_prob

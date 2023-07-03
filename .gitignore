@@ -2,4 +2,6 @@ data/*
 template/*
 *.out
 set*.ipynb
+align_drug.ipynb
+case_study.ipynb
 __pycache__/*

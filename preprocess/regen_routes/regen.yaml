@@ -1,0 +1,36 @@
+description: finding_retrosynthesis_routes
+
+target:
+  service: sing
+  name: msrresrchvc
+
+environment:
+  registry: leifa.azurecr.io
+  image: leifa/aizynthfinder:latest
+  username: leifa
+
+storage:
+  # You can tell PT to store results in a different container optimized for writing.
+  output:
+    storage_account_name: bdmstorage
+    container_name: teamdrive
+    # you can change the mount path to reference in your code
+    mount_dir: /teamdrive
+
+code:
+  # Code will be stored in the default storage
+  local_dir: ./
+
+# We can access our data directly by referring to the mount point of your storage.
+search:
+  job_template: 
+    name: retrosynthesis_n1
+    sku: 8C3
+    command:
+    - python retrosynthesis.py --chunk_id {chunk_id}
+  type: grid
+  max_trials: 30000
+  params: 
+    - name: chunk_id
+      spec: discrete
+      values: "[i for i in range(1429)]"

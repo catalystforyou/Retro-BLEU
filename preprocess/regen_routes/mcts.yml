@@ -1,0 +1,15 @@
+properties:
+  iteration_limit: 500
+  time_limit: 9999
+  max_transforms: 10
+  post_processing:
+      all_routes: True
+policy:
+  files:
+    uspto:
+      - ../data/uspto_keras_model.hdf5
+      - ../data/uspto_unique_templates.csv.gz
+stock:
+  files:
+    n5: ../data/n5-stock.txt
+    n1: ../data/n1-stock.txt
