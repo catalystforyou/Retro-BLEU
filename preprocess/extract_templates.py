@@ -1,13 +1,9 @@
 import json
 import pickle
-import numpy as np
 from tqdm import tqdm
-from rdkit import Chem
 from rxnutils.chem.reaction import ChemicalReaction
-from BLEU_utils import *
 from multiprocessing import Pool
 from rxnmapper import RXNMapper
-import os
 from transformers import logging
 import argparse
 
@@ -17,8 +13,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--template_radius', type=int, default=1)
     args = parser.parse_args()
-
-    def extract_rxn(route):
+    
+    
+    def extract_rxns(route):
         rxn_nodes = []
         def preorder(root):
             if root.get('children') == None:
@@ -39,7 +36,7 @@ if __name__ == '__main__':
     routes = json.load(open('../test_routes/routes_retrostar.json'))['routes']
     routes = [[rxn.split('>')[0] + '>>' + rxn.split('>')[-1] for rxn in route.split('|')] for route in routes if isinstance(route, str)]
     test_rxns.extend([rxn for route in routes for rxn in route])
-    golden_routes = pickle.load(open('test_routes/routes_golden.pkl', 'rb'))
+    golden_routes = pickle.load(open('../test_routes/routes_golden.pkl', 'rb'))
     test_rxns.extend([rxn for route in golden_routes for rxn in route])
     routes = json.load(open('../test_routes/routes_egmcts.json'))['routes']
     routes = [[rxn.split('>')[0] + '>>' + rxn.split('>')[-1] for rxn in route.split('|')] for route in routes if isinstance(route, str)]
@@ -67,10 +64,20 @@ if __name__ == '__main__':
     all_routes = pickle.load(open('../data/all_routes.pickle', 'rb'))
     all_rxns = []
     for idx, route in enumerate(all_routes):
-        rxn_nodes = extract_rxn(route)
+        rxn_nodes = extract_rxns(route)
         for rxn_nodes in rxn_nodes:
             all_rxns.append(rxn_nodes['metadata']['smiles'])
+            
+    n5_routes = json.load(open('../data/n5-routes.json'))
+    n1_routes = json.load(open('../data/n1-routes.json'))
+    for idx, route in enumerate(n5_routes + n1_routes):
+        rxn_nodes = extract_rxns(route)
+        for rxn_nodes in rxn_nodes:
+            all_rxns.append(rxn_nodes['metadata']['smiles'])
+
     all_rxns = list(set(all_rxns))
+
+
 
     all_temp_dict = []
 

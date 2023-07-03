@@ -301,10 +301,10 @@ def route_score_bleu(routes, vocab_negative, vocab_positive, golden_template, he
             bigrams = [tuple([golden_template[rxn] for rxn in curr_rxn_set]) for curr_rxn_set in bigrams_orig]
         if len(bigrams) == 0:
             bigram_ratio = 0
-            bigram_freq = 0
+            # bigram_freq = 0
         else:
             bigram_ratio = sum([b in vocab_positive for b in bigrams]) / len(bigrams)
-            bigram_freq = sum([vocab_positive[b] for b in bigrams if b in vocab_positive])
+            # bigram_freq = sum([vocab_positive[b] for b in bigrams if b in vocab_positive])
         if len(bigrams) == 0:
             bigram_ratio_neg = 0
         else:

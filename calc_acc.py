@@ -8,8 +8,6 @@ from BLEU_utils import *
 all_routes = pickle.load(open('data/all_routes.pickle', 'rb'))
 n5_routes = json.load(open('data/n5-routes.json'))
 n1_routes = json.load(open('data/n1-routes.json'))
-n5_templates = json.load(open('../teamdrive/projects/n5routes/templates/n5_templates_1_0_0.json'))
-n1_templates = json.load(open('../teamdrive/projects/n5routes/templates/n1_templates_1_0_0.json'))
 all_templates = json.load(open('../teamdrive/projects/n5routes/templates/all_routes_templates_1_0_0.json'))
 golden_dict = pickle.load(open('../teamdrive/projects/n5routes/templates/golden_dict.pickle', 'rb'))
 n5_bigrams = pickle.load(open('data/vocab_bigrams_n5.pkl', 'rb'))
@@ -28,11 +26,9 @@ def calc_acc(route_type, route_name, add_golden=True, neg_bigram=set(), searchab
     if route_type == 'n5routes':
         golden_routes = n5_routes
         pos_bigram = n5_bigrams
-        golden_template = n5_templates
     else:
         golden_routes = n1_routes
         pos_bigram = n1_bigrams
-        golden_template = n1_templates
     for i in range(10000):
         try:
             routes = json.load(open(f'../routes/{route_type}/{route_name}/routes_{i}.json'))
@@ -47,7 +43,7 @@ def calc_acc(route_type, route_name, add_golden=True, neg_bigram=set(), searchab
         if add_golden:
             golden_score = route_score(golden_route)
             candidate_scores = [route_score(r) for r in routes]
-            candidate_bleu = route_score_bleu([golden_route] + routes, neg_bigram, pos_bigram, golden_template)
+            candidate_bleu = route_score_bleu([golden_route] + routes, neg_bigram, pos_bigram, all_templates)
             golden_bleu = candidate_bleu[0]
             candidate_bleu = candidate_bleu[1:]
             golden_prob = route_score_probability_golden(golden_route, golden_dict, searchable=searchable)
@@ -60,7 +56,7 @@ def calc_acc(route_type, route_name, add_golden=True, neg_bigram=set(), searchab
             else:
                 continue
             candidate_scores = [route_score(r) for r in routes]
-            candidate_bleu = route_score_bleu(routes, neg_bigram, pos_bigram, golden_template)
+            candidate_bleu = route_score_bleu(routes, neg_bigram, pos_bigram, all_templates)
             golden_score = candidate_scores[golden_idx]
             golden_bleu = candidate_bleu[golden_idx]
             candidate_probs = [route_score_probability(r) for r in routes]
