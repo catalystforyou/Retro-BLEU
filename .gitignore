@@ -6,3 +6,8 @@ align_drug.ipynb
 case_study.ipynb
 __pycache__/*
 test.ipynb
+drawing.ipynb
+*.png
+*.pdf
+*_?.ipynb
+evaluate_overlap.py

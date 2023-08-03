@@ -9,7 +9,7 @@ from tqdm import trange, tqdm
 from BLEU_utils import *
 
 all_routes = pickle.load(open('data/all_routes.pickle', 'rb'))
-all_templates = json.load(open('../teamdrive/projects/n5routes/templates/all_routes_templates_1_0_0.json'))
+all_templates = json.load(open('data/all_routes_templates_1_0_0.json'))
 n5_routes = json.load(open('data/n5-routes.json'))
 n1_routes = json.load(open('data/n1-routes.json'))
 

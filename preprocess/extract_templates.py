@@ -47,17 +47,28 @@ if __name__ == '__main__':
     test_rxns = list(set(test_rxns))
     print(len(test_rxns))
 
-    test_temp_dict = {}
+    test_temp_dict_0 = {}
+    test_temp_dict_1 = {}
+    test_temp_dict_2 = {}
     for rxn in tqdm(test_rxns):
         try:
             forward_rxn = rxn.split('>>')[-1] + '>>' + rxn.split('>>')[0]
             mapped_rxn = rxnmapper.get_attention_guided_atom_maps([forward_rxn])[0]['mapped_rxn']
-            template = ChemicalReaction(mapped_rxn).generate_reaction_template(radius=args.template_radius, expand_ring=False, expand_hetero=False)[1].smarts
+            template_0 = ChemicalReaction(mapped_rxn).generate_reaction_template(radius=0, expand_ring=False, expand_hetero=False)[1].smarts
+            template_1 = ChemicalReaction(mapped_rxn).generate_reaction_template(radius=1, expand_ring=False, expand_hetero=False)[1].smarts
+            template_2 = ChemicalReaction(mapped_rxn).generate_reaction_template(radius=2, expand_ring=False, expand_hetero=False)[1].smarts
         except Exception as e:
             print(e)
-            template = ''
-        test_temp_dict[rxn] = template
-    json.dump(test_temp_dict, open(f'../data/test_routes_templates_{args.template_radius}_0_0.json', 'w'))
+            template_0 = ''
+            template_1 = ''
+            template_2 = ''
+        test_temp_dict_0[rxn] = template_0
+        test_temp_dict_1[rxn] = template_1
+        test_temp_dict_2[rxn] = template_2
+    
+    json.dump(test_temp_dict_0, open(f'../data/test_routes_templates_0_0_0.json', 'w'))
+    json.dump(test_temp_dict_1, open(f'../data/test_routes_templates_1_0_0.json', 'w'))
+    json.dump(test_temp_dict_2, open(f'../data/test_routes_templates_2_0_0.json', 'w'))    
 
 
 

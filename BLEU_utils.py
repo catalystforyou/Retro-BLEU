@@ -97,6 +97,7 @@ def extract_pentagram(rxn_nodes):
                             pentagram_rxns.append((rxn_node['metadata']['smiles'], child_rxn['metadata']['smiles'], child_child_rxn['metadata']['smiles'], child_child_child_rxn['metadata']['smiles'], child_child_child_child_rxn['metadata']['smiles']))
     return pentagram_rxns
 
+
 def extract_generated_bigram(rxn_nodes):
     bigram_rxns, bigram_templates = [], []
     for rxn_node in rxn_nodes:
@@ -108,7 +109,58 @@ def extract_generated_bigram(rxn_nodes):
                     bigram_templates.append((rxn_node['metadata']['template'], child_rxn['metadata']['template']))
                 except:
                     pass
-    return bigram_rxns, bigram_templates
+    return bigram_templates
+
+def extract_generated_trigram(rxn_nodes):
+    trigram_rxns, trigram_templates = [], []
+    for rxn_node in rxn_nodes:
+        child_rxns = [child['children'][0] for child in rxn_node['children'] if child.get('children') is not None]
+        for child_rxn in child_rxns:
+            child_child_rxns = [child['children'][0] for child in child_rxn['children'] if child.get('children') is not None]
+            for child_child_rxn in child_child_rxns:
+                if not (rxn_node['metadata']['mapped_reaction_smiles'], child_rxn['metadata']['mapped_reaction_smiles'], child_child_rxn['metadata']['mapped_reaction_smiles']) in trigram_rxns:
+                    trigram_rxns.append((rxn_node['metadata']['mapped_reaction_smiles'], child_rxn['metadata']['mapped_reaction_smiles'], child_child_rxn['metadata']['mapped_reaction_smiles']))
+                    try:
+                        trigram_templates.append((rxn_node['metadata']['template'], child_rxn['metadata']['template'], child_child_rxn['metadata']['template']))
+                    except:
+                        pass
+    return trigram_templates
+
+def extract_generated_tetragram(rxn_nodes):
+    tetragram_rxns, tetragram_templates = [], []
+    for rxn_node in rxn_nodes:
+        child_rxns = [child['children'][0] for child in rxn_node['children'] if child.get('children') is not None]
+        for child_rxn in child_rxns:
+            child_child_rxns = [child['children'][0] for child in child_rxn['children'] if child.get('children') is not None]
+            for child_child_rxn in child_child_rxns:
+                child_child_child_rxns = [child['children'][0] for child in child_child_rxn['children'] if child.get('children') is not None]
+                for child_child_child_rxn in child_child_child_rxns:
+                    if not (rxn_node['metadata']['mapped_reaction_smiles'], child_rxn['metadata']['mapped_reaction_smiles'], child_child_rxn['metadata']['mapped_reaction_smiles'], child_child_child_rxn['metadata']['mapped_reaction_smiles']) in tetragram_rxns:
+                        tetragram_rxns.append((rxn_node['metadata']['mapped_reaction_smiles'], child_rxn['metadata']['mapped_reaction_smiles'], child_child_rxn['metadata']['mapped_reaction_smiles'], child_child_child_rxn['metadata']['mapped_reaction_smiles']))
+                        try:
+                            tetragram_templates.append((rxn_node['metadata']['template'], child_rxn['metadata']['template'], child_child_rxn['metadata']['template'], child_child_child_rxn['metadata']['template']))
+                        except:
+                            pass
+    return tetragram_templates
+
+def extract_generated_pentagram(rxn_nodes):
+    pentagram_rxns, pentagram_templates = [], []
+    for rxn_node in rxn_nodes:
+        child_rxns = [child['children'][0] for child in rxn_node['children'] if child.get('children') is not None]
+        for child_rxn in child_rxns:
+            child_child_rxns = [child['children'][0] for child in child_rxn['children'] if child.get('children') is not None]
+            for child_child_rxn in child_child_rxns:
+                child_child_child_rxns = [child['children'][0] for child in child_child_rxn['children'] if child.get('children') is not None]
+                for child_child_child_rxn in child_child_child_rxns:
+                    child_child_child_child_rxns = [child['children'][0] for child in child_child_child_rxn['children'] if child.get('children') is not None]
+                    for child_child_child_child_rxn in child_child_child_child_rxns:
+                        if not (rxn_node['metadata']['mapped_reaction_smiles'], child_rxn['metadata']['mapped_reaction_smiles'], child_child_rxn['metadata']['mapped_reaction_smiles'], child_child_child_rxn['metadata']['mapped_reaction_smiles'], child_child_child_child_rxn['metadata']['mapped_reaction_smiles']) in pentagram_rxns:
+                            pentagram_rxns.append((rxn_node['metadata']['mapped_reaction_smiles'], child_rxn['metadata']['mapped_reaction_smiles'], child_child_rxn['metadata']['mapped_reaction_smiles'], child_child_child_rxn['metadata']['mapped_reaction_smiles'], child_child_child_child_rxn['metadata']['mapped_reaction_smiles']))
+                            try:
+                                pentagram_templates.append((rxn_node['metadata']['template'], child_rxn['metadata']['template'], child_child_rxn['metadata']['template'], child_child_child_rxn['metadata']['template'], child_child_child_child_rxn['metadata']['template']))
+                            except:
+                                pass
+    return pentagram_templates
 
 def extract_rxns_askcos(route):
     mol_nodes = [route]
@@ -141,6 +193,49 @@ def build_vocab(routes, template_dict):
         return all_ngram_rxns
     all_ngram_templates = [[tuple([template_dict[rxn] for rxn in curr_rxn_set]) for curr_rxn_set in n_gram_rxns] for n_gram_rxns in all_ngram_rxns]
     return all_ngram_rxns, all_ngram_templates, all_rxns
+
+def build_train_vocab(routes, template_dict):
+    def extract_train_bigram(rxns):
+        if len(rxns) < 2:
+            return []
+        bigram_rxns = []
+        for idx, rxn in enumerate(rxns[:-1]):
+            bigram_rxns.append((rxn, rxns[idx+1]))
+        return bigram_rxns
+    def extract_train_trigram(rxns):
+        if len(rxns) < 3:
+            return []
+        trigram_rxns = []
+        for idx, rxn in enumerate(rxns[:-2]):
+            trigram_rxns.append((rxn, rxns[idx+1], rxns[idx+2]))
+        return trigram_rxns
+    def extract_train_tetragram(rxns):
+        if len(rxns) < 4:
+            return []
+        tetragram_rxns = []
+        for idx, rxn in enumerate(rxns[:-3]):
+            tetragram_rxns.append((rxn, rxns[idx+1], rxns[idx+2], rxns[idx+3]))
+        return tetragram_rxns
+    def extract_train_pentagram(rxns):
+        if len(rxns) < 5:
+            return []
+        pentagram_rxns = []
+        for idx, rxn in enumerate(rxns[:-4]):
+            pentagram_rxns.append((rxn, rxns[idx+1], rxns[idx+2], rxns[idx+3], rxns[idx+4]))
+        return pentagram_rxns
+    all_ngram_rxns = [[] for _ in range(4)]
+    all_rxns = []
+    for idx, route in enumerate(routes):
+        all_rxns += route
+        all_ngram_rxns[0].extend(extract_train_bigram(route))
+        all_ngram_rxns[1].extend(extract_train_trigram(route))
+        all_ngram_rxns[2].extend(extract_train_tetragram(route))
+        all_ngram_rxns[3].extend(extract_train_pentagram(route))
+    if template_dict is None:
+        return all_ngram_rxns
+    all_ngram_templates = [[tuple([template_dict[rxn] for rxn in curr_rxn_set]) for curr_rxn_set in n_gram_rxns] for n_gram_rxns in all_ngram_rxns]
+    return all_ngram_rxns, all_ngram_templates, all_rxns
+        
 
 def evaluate_routes(test_routes, template_dict, vocab_ngram_templates, vocab_ngram_rxns):
     bleu_score = [[] for _ in range(4)]
@@ -179,6 +274,64 @@ def evaluate_routes(test_routes, template_dict, vocab_ngram_templates, vocab_ngr
             if len(test_ngram_rxns[3]) > 0:
                 bleu_score[3].append(sum([penta in vocab_ngram_rxns[3] for penta in test_ngram_rxns[3]]) / len(test_ngram_rxns[3]))
                 bleu_template_score[3].append(sum([penta in vocab_ngram_templates[3] for penta in test_ngram_templates[3]]) / len(test_ngram_templates[3]))
+    return bleu_score, bleu_template_score
+
+def evaluate_aizynthfinder_routes(test_routes, vocab_ngram_templates, vocab_ngram_rxns):
+    def rxn2mol(rxn):
+        r, p = rxn.split('>>')
+        rs = r.split('.') + p.split('.')
+        return tuple(sorted(rs))
+    bleu_score = [[] for _ in range(4)]
+    bleu_template_score = [[] for _ in range(4)]
+    for route in test_routes:
+        rxn_nodes = extract_rxns(route)
+        bigram_templates = extract_generated_bigram(rxn_nodes)
+        trigram_templates = extract_generated_trigram(rxn_nodes)
+        tetragram_templates = extract_generated_tetragram(rxn_nodes)
+        pentagram_templates = extract_generated_pentagram(rxn_nodes)
+        bigram_rxns, trigram_rxns, tetragram_rxns, pentagram_rxns = [], [], [], []
+        mol_nodes = extract_mols(route)
+        curr_rxns = []
+        for mol_node in mol_nodes:
+            if mol_node.get('children') is not None:
+                curr_rxns.append(mol_node['smiles'] + '>>' + '.'.join([m['smiles'] for m in mol_node['children'][0]['children']]))
+        precursors_dict = {rxn.split('>>')[0]:rxn for rxn in curr_rxns}
+        for rxn in curr_rxns:
+            reactants = rxn.split('>>')[1].split('.')
+            for reactant in reactants:
+                if reactant in precursors_dict:
+                    bigram_rxns.append((rxn, precursors_dict[reactant]))
+        for gram in bigram_rxns:
+            reactants = gram[-1].split('>>')[1].split('.')
+            for reactant in reactants:
+                if reactant in precursors_dict:
+                    trigram_rxns.append(gram + tuple([precursors_dict[reactant]]))
+        for gram in trigram_rxns:
+            reactants = gram[-1].split('>>')[1].split('.')
+            for reactant in reactants:
+                if reactant in precursors_dict:
+                    tetragram_rxns.append(gram + tuple([precursors_dict[reactant]]))
+        for gram in tetragram_rxns:
+            reactants = gram[-1].split('>>')[1].split('.')
+            for reactant in reactants:
+                if reactant in precursors_dict:
+                    pentagram_rxns.append(gram + tuple([precursors_dict[reactant]]))
+        bigram_rxns = [tuple([rxn2mol(rxn) for rxn in bi]) for bi in bigram_rxns]
+        trigram_rxns = [tuple([rxn2mol(rxn) for rxn in tri]) for tri in trigram_rxns]
+        tetragram_rxns = [tuple([rxn2mol(rxn) for rxn in tetra]) for tetra in tetragram_rxns]
+        pentagram_rxns = [tuple([rxn2mol(rxn) for rxn in penta]) for penta in pentagram_rxns]
+        if len(bigram_rxns) > 0 and len(bigram_templates) > 0:
+            bleu_score[0].append(sum([bi in vocab_ngram_rxns[0] for bi in bigram_rxns]) / len(bigram_rxns))
+            bleu_template_score[0].append(sum([bi in vocab_ngram_templates[0] for bi in bigram_templates]) / len(bigram_templates))
+        if len(trigram_rxns) > 0 and len(trigram_templates) > 0:
+            bleu_score[1].append(sum([tri in vocab_ngram_rxns[1] for tri in trigram_rxns]) / len(trigram_rxns))
+            bleu_template_score[1].append(sum([tri in vocab_ngram_templates[1] for tri in trigram_templates]) / len(trigram_templates))
+        if len(tetragram_rxns) > 0 and len(tetragram_templates) > 0:
+            bleu_score[2].append(sum([tetra in vocab_ngram_rxns[2] for tetra in tetragram_rxns]) / len(tetragram_rxns))
+            bleu_template_score[2].append(sum([tetra in vocab_ngram_templates[2] for tetra in tetragram_templates]) / len(tetragram_templates))
+        if len(pentagram_rxns) > 0 and len(pentagram_templates) > 0:
+            bleu_score[3].append(sum([penta in vocab_ngram_rxns[3] for penta in pentagram_rxns]) / len(pentagram_rxns))
+            bleu_template_score[3].append(sum([penta in vocab_ngram_templates[3] for penta in pentagram_templates]) / len(pentagram_templates))
     return bleu_score, bleu_template_score
 
 def get_new_ngram(route, template_radius=1):
@@ -286,7 +439,7 @@ def heuristic_score(length):
     else:
         return 3 / length
 
-def route_score_bleu(routes, vocab_negative, vocab_positive, golden_template, heuristic=True):
+def route_score_bleu(routes, vocab_negative, vocab_positive, golden_template, heuristic=True, lengthonly=False, bleuonly=False):
     min_length = min([len(extract_rxns(r)) for r in routes])
     scores = []
     for route in routes:
@@ -310,7 +463,12 @@ def route_score_bleu(routes, vocab_negative, vocab_positive, golden_template, he
         else:
             bigram_ratio_neg = sum([b in vocab_negative for b in bigrams]) / len(bigrams)
         if heuristic:
-            scores.append(- 1 * np.exp(bigram_ratio) - 1 * np.exp(heuristic_score(len(rxn_nodes))) + 1 * np.exp(bigram_ratio_neg))
+            if lengthonly:
+                scores.append(- 1 * np.exp(heuristic_score(len(rxn_nodes))))
+            elif bleuonly:
+                scores.append(- 1 * np.exp(bigram_ratio))
+            else:
+                scores.append(- 1 * np.exp(bigram_ratio) - 1 * np.exp(heuristic_score(len(rxn_nodes))) + 1 * np.exp(bigram_ratio_neg))
         else:
             scores.append(- 1 * np.exp(bigram_ratio) - 1 * np.exp(min_length / len(rxn_nodes)) + 1 * np.exp(bigram_ratio_neg))
     return scores

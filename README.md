@@ -44,6 +44,11 @@ python convert_route.py
 cd preprocess
 conda activate Retro-BLEU
 python extract_templates.py
+
+(if you want to examine template on other radii for Retro*-190, run the commands below)
+
+sh extract_training_template.sh
+python merge_train_templates.py
 ```
 
 ### Step 3: Performing single-step predictions
@@ -60,10 +65,16 @@ You may use the script `retrosynthesis.py` in `preprocess/regen_routes/` and you
 (There is a generated version under ../routes/{n5routes, n1routes}/{mcts_v2, retrostar_v2} and you don't actually need to regenerate the routes.)
 
 
-### Step 5: Evaluating generated routes
+### Step 5: Evaluating bigram overlap
 
-- Validating different retrosynthesis searching algorithms: evaluate_algorithms.ipynb
-- Evaluating generated routes for set-n1 & n5
+```
+cd preprocess
+python extract_first_routes.py
+```
+Then you may use the `evaluate_algorithms.ipynb` to examine different retrosynthesis searching algorithms across PaRoutes & Retro*-190.
+
+### Step 5: Selecting the patent-extracted route from set-n1 & set-n5
+
 ```
 python generate_vocab_bigrams.py
 python calc_acc.py
