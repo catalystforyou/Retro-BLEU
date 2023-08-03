@@ -8,7 +8,9 @@ This project is aimed to evaluate generated retrosynthesis routes via the Retro-
 - PaRoutes
 - aizynthtrain(optional if you want to extract negative bigrams)
 
-### enviornments
+Please use `git clone --recursive https://github.com/catalystforyou/Retro-BLEU.git` to correctly load the submodules.
+
+### Enviornments
 
 Please follow the instructions in the corresponding submodules when preparing the data.
 
@@ -26,9 +28,11 @@ pip install rxnmapper
 ### Step 1: Preparaing the patent routes
 ```
 conda activate paroutes-env (see submodule PaRoutes)
+mkdir data
 cp PaRoutes/data/download_data.py data/
 cd data
 python download_data.py
+cp uspto_template_library.csv ../PaRoutes/data
 cd ../PaRoutes/setup
 python extract_uspto_data.py --template_library ../data/uspto_template_library.csv --all_reactions ../data/selected_reactions_all.csv
 python extract_routes.py --max-workers 24
