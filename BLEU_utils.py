@@ -448,7 +448,7 @@ def route_score_bleu(routes, vocab_negative, vocab_positive, golden_template, he
             scores.append(0)
             continue
         try:
-            bigrams = extract_generated_bigram(rxn_nodes)[1]
+            bigrams = extract_generated_bigram(rxn_nodes)
         except:
             bigrams_orig = extract_bigram(rxn_nodes)
             bigrams = [tuple([golden_template[rxn] for rxn in curr_rxn_set]) for curr_rxn_set in bigrams_orig]

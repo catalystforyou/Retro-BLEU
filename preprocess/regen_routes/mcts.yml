@@ -11,5 +11,5 @@ policy:
       - ../data/uspto_unique_templates.csv.gz
 stock:
   files:
-    n5: ../data/n5-stock.txt
-    n1: ../data/n1-stock.txt
+    n5: ../data/n5-stock.hdf5
+    n1: ../data/n1-stock.hdf5

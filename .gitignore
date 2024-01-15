@@ -1,9 +1,16 @@
-data/*
+data/*.txt
+data/*.pickle
+data/*.hdf5
+data/*.out
+data/*.json
+data/*.py
+data/*.csv
+data/*.ckpt
+data/*.gz
+routes/*
 template/*
 *.out
 set*.ipynb
-align_drug.ipynb
-case_study.ipynb
 __pycache__/*
 test.ipynb
 drawing.ipynb
@@ -11,3 +18,4 @@ drawing.ipynb
 *.pdf
 *_?.ipynb
 evaluate_overlap.py
+calc_retrobleu.ipynb

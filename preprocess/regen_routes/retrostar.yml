@@ -7,7 +7,7 @@ properties:
       all_routes: True
 molecule_cost:
   aizynthfinder.search.retrostar.cost.RetroStarCost:
-    model_path: ../../PaRoutes/publication/retrostar_value_model.pickle
+    model_path: ../PaRoutes/publication/retrostar_value_model.pickle
 policy:
   files:
     uspto:
@@ -15,5 +15,5 @@ policy:
       - ../data/uspto_unique_templates.csv.gz
 stock:
   files:
-    n5: ../data/n5-stock.txt
-    n1: ../data/n1-stock.txt
+    n5: ../data/n5-stock.hdf5
+    n1: ../data/n1-stock.hdf5

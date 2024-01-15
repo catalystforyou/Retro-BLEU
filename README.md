@@ -4,8 +4,8 @@ This project is aimed to evaluate generated retrosynthesis routes via the Retro-
 
 ## Requirement
 ### Submodules
-- aizynthfinder
-- PaRoutes
+- aizynthfinder (v3.7.0)
+- PaRoutes (benchmark dataset V2)
 - aizynthtrain(optional if you want to extract negative bigrams)
 
 Please use `git clone --recursive https://github.com/catalystforyou/Retro-BLEU.git` to correctly load the submodules.
