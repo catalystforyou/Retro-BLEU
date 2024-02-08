@@ -1,9 +1,10 @@
 # Retro-BLEU
 
-This project is aimed to evaluate generated retrosynthesis routes via the Retro-BLEU score.
+Retro-BLEU is designed to assess the quality of generated retrosynthesis routes. You can evaluate retrosynthesis routes either by utilizing our pre-extracted positive bigrams from the USPTO dataset or you may also extract your own bigrams
 
 ## Requirement
 ### Submodules
+(These submodules are prepared for extracting bigrams from USPTO dataset. For leveraging Retro-BLEU for evaluation, you can simply skip to the next section.)
 - aizynthfinder (v3.7.0)
 - PaRoutes (benchmark dataset V2)
 - aizynthtrain(optional if you want to extract negative bigrams)
@@ -11,9 +12,6 @@ This project is aimed to evaluate generated retrosynthesis routes via the Retro-
 Please use `git clone --recursive https://github.com/catalystforyou/Retro-BLEU.git` to correctly load the submodules.
 
 ### Enviornments
-
-Please follow the instructions in the corresponding submodules when preparing the data.
-
 ```
 conda create -n Retro-BLEU python=3.8
 conda activate Retro-BLEU
@@ -23,7 +21,13 @@ pip install rxnmapper
 
 ```
 
-## Data Preparation
+## Evaluating Retrosynthesis Routes
+Please ensure that the routes are saved in SMILES format within a JSON file. You can use `test_routes/routes_retrograph.json` as a reference. To test your routes, execute the `calc_retrobleu.py` script and provide the path to the JSON file containing your saved routes.
+
+
+
+
+## Extracting Bigrams
 
 ### Step 1: Preparaing the patent routes
 ```
